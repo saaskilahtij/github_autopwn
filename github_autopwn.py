@@ -29,12 +29,7 @@ def parse_options():
     args = parser.parse_args()
     return args
 
-def get_code_snippet(git_url_key, authorization):
-    authorization
-    headers = {
-        "Authorization":"Bearer {authorization}"
-    }
-
+def get_code_snippet(git_url_key, headers):
     this_req = requests.get(git_url_key, verify=True, headers=headers)
     json_data = json.loads(this_req.content)
     if this_req.status_code == 200:
@@ -44,7 +39,7 @@ def get_code_snippet(git_url_key, authorization):
                  if payload[0] + "(" in repo_code[i]:
                      print(str(repo_code[i]))
 
-def check_rate_limit():
+def check_rate_limit(headers):
     this_req = requests.get("https://api.github.com/rate_limit", verify=True, headers=headers)
     json_data = json.loads(this_req.content)
     pprint(json_data["rate"])
@@ -95,7 +90,7 @@ def main(args):
 
                             print(colored("This should be printed if -g is specified", "yellow"))
                             git_url_key = key["git_url"]
-                            get_code_snippet(git_url_key, )
+                            get_code_snippet(git_url_key, headers)
 
                     except KeyError:
                         print(colored("[-] Didn't find anything. Moving on!", "red"))
@@ -118,7 +113,7 @@ def main(args):
             try:
 
                 github_api = ("https://api.github.com/search/code?q=user:{} {}").format(args.org, payload[0])
-                this_req = requests.get(github_api, verify=True)
+                this_req = requests.get(github_api, verify=True, headers=headers)
                 json_data = json.loads(this_req.content)
                 print(colored("[!] Got status code: %d" % this_req.status_code, "yellow"))
 
@@ -136,7 +131,7 @@ def main(args):
                             if args.get_code:
 
                                 git_url_key = key["git_url"]
-                                get_code_snippet(git_url_key)
+                                get_code_snippet(git_url_key, headers)
 
                         except KeyError as e:
 
